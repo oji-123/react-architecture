@@ -1,39 +1,24 @@
-export type UserType = "ADMIN" | "GENERAL";
+import { z } from "zod";
 
-// 型定義とは別に定義を行う。
-// API実行前のundfinedの状態を安全に初期化する目的で利用する。
+// 1. スキーマ定義：APIが値を返さない場合のデフォルト値もここで定義
+export const UserSchema = z.object({
+  id: z.number(), // defaultを記載していない場合は、値必須
+  name: z.string().default("名前なし"), // 空文字とかを検討
+  type: z.enum(["ADMIN", "GENERAL"]).default("GENERAL"),
+});
 
-export class User {
-  // Tips:constructor(public readonly id: number)などのように記載もできるが、
-  // 最近のビルドツールではTS独自の記述変換をパフォーマンスの観点から嫌う傾向があるらしい。
-  // 以下のように素直に記載。
-  public readonly id: number;
-  public readonly name: string;
-  public readonly type: UserType;
+// 2. 型の抽出（スキーマ定義を元に、Zodが定義した構造から自動で型を生成）
+export type User = z.infer<typeof UserSchema>; // 単一の型
+export const UserListSchema = z.array(UserSchema); // 配列の型
 
-  constructor(id: number, name: string, type: UserType) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-  }
+// 3. ビジネスロジック（純粋関数）
+export const getUserTypeLabel = (type: User["type"]): string => {
+  return type === "ADMIN" ? "管理者" : "一般ユーザー";
+};
 
-  // 1. 日本語変換のロジック（UIコンポーネントに書かない）
-  get typeLabel(): string {
-    return this.type === "ADMIN" ? "管理者" : "一般ユーザー";
-  }
-
-  // 2. 「空の状態」を定義（UIを undefined の呪いから救う）
-  static empty(): User { // 現状では利用していない。仮にUser[]型で受け取る場合は、空配列([users, setUsers] = useState<User[]>([]);)を指定する。
-    return new User(0, "読み込み中...", "GENERAL");
-  }
-
-  // 3. APIレスポンスからのファクトリ（マッピングと消毒）
-  // 以下のように受け取ったany型のオブジェクトからUserクラスのインスタンスを生成する。
-  static fromApi(data: any): User { // anyをどのように扱うか？unknownなどでも回避することは可能？
-    return new User(
-      data.id ?? 0,
-      data.name ?? "名前なし",
-      data.type ?? "GENERAL"
-    );
-  }
-}
+// 4. 初期状態の定義
+export const EMPTY_USER: User = {
+  id: 0,
+  name: "読み込み中...",
+  type: "GENERAL",
+};

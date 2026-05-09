@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User } from "../domain/User";
+import { type User } from "../domain/User";
 import { fetchUsers } from "../infrastructure/UserFetcher";
 
 export const useUserSearch = () => {
