@@ -1,36 +1,25 @@
 import { useState, useEffect } from "react";
-
-// APIから返ってくるデータの型定義 → 共通化できるものはTypes管理？
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
+import { User } from "../domain/User";
+import { fetchUsers } from "../infrastructure/UserFetcher";
 
 export const useUserSearch = () => {
-  const [users, setUsers] = useState<User[]>([]); // 全データ
-  const [query, setQuery] = useState("");         // 検索窓の入力値
-  const [loading, setLoading] = useState(true);   // ローディング状態
+  // ここで返ってきているUserはすでに初期化のロジックを通っているため、undefinedのチェックが完了した状態。
+  // usersをusers.name?のようにundefinedチェックする必要がなくなる。
+  const [users, setUsers] = useState<User[]>([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // コンポーネントのマウント時に1回だけ実行
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((res) => res.json())
-      .then((data) => {
-        setUsers(data);
-        setLoading(false);
-      });
+    fetchUsers().then(data => {
+      setUsers(data);
+      setLoading(false);
+    });
   }, []);
 
-  // 以下のような処理ロジックをHookに逃がすことで、コンポーネント側はデータの表示に専念
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(query.toLowerCase())
+  // 以下は、このHook内のstateの状態が変わった場合、毎回再計算されている。
+  const filteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(query.toLowerCase())
   );
 
-  return {
-    query,
-    setQuery,
-    filteredUsers,
-    loading,
-  };
+  return { query, setQuery, filteredUsers, loading };
 };

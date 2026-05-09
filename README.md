@@ -1,9 +1,11 @@
 ## ポイント
 - ロジックをhook、見た目をUserListに寄せているため、バグが発生した際にどのソースを確認する必要があるかわかりやすい。
 - ロジックを分離することで、コンポーネントの記載量が減る
+- APIでの受け取りの際は、受信用のクラスを作成し、初期値を設定するようにする。
+  - そのようにすることで、フロント側でのundfinedの回避を行うことができる。
 
 ## Reactの基本的な考え方
-State management with hooks がベースとなる。
+- State management with hooks がベースとなる。
 
 ## 参考
-https://qiita.com/koji0705/items/c74fe71612a7e81e2693
+>https://qiita.com/koji0705/items/c74fe71612a7e81e2693
