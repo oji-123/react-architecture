@@ -1,3 +1,5 @@
+import { UserSearch } from "./components/UserSearch";
+
 function App() {
   return (
     <div className="App">
@@ -9,6 +11,7 @@ function App() {
       </header>
 
       <main style={{ padding: "20px" }}>
+        <UserSearch />
       </main>
     </div>
   );
